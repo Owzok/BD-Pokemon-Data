@@ -1,0 +1,591 @@
+CREATE TABLE Usuario (
+	nombre VARCHAR(40) NOT NULL,
+	fecha_hora_unido TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Equipo (
+	id INTEGER,
+	valido BOOLEAN DEFAULT TRUE,
+	nombre VARCHAR(40),
+	nombre_usuario VARCHAR(40),
+	nombre_formato VARCHAR(15)
+);
+
+CREATE TABLE Participa (
+	id_equipo INTEGER,
+	nombre_usuario VARCHAR(40),
+	id_combate INTEGER
+);
+
+CREATE TABLE Combate (
+	id INTEGER,
+	fecha TIMESTAMP,
+	horainicio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	horafin TIMESTAMP,
+	clasificacion VARCHAR(15),
+	id_equipo INTEGER,
+	nombre_usuario VARCHAR(40)
+);
+
+CREATE TABLE Formato (
+	nombre VARCHAR(15),
+	doubles BOOLEAN
+);
+
+CREATE TABLE PokemonBase (
+	id INTEGER,
+	nombre VARCHAR(15),
+	nombre_formato VARCHAR(15)
+);
+
+CREATE TABLE PokemonCreado (
+	idc INTEGER,
+	nivel INTEGER,
+	variocolor BOOLEAN DEFAULT FALSE,
+	nickname VARCHAR(20),
+	id_pkmn INTEGER,
+	id_eq INTEGER,
+	nombre_usuario VARCHAR(40),
+	nombre_habilidad VARCHAR(15),
+	nombre_nat VARCHAR(12)
+);
+
+CREATE TABLE PuedeCargar (
+	id_pkmn INTEGER,
+	nombre_obj VARCHAR(15)
+);
+
+CREATE TABLE Carga(
+	idc_pkmn INTEGER,
+	id_pkbase INTEGER,
+	id_eq INTEGER,
+	nombre_usuario VARCHAR(40),
+	nombre_objeto VARCHAR(15)
+);
+
+CREATE TABLE Objeto(
+	nombre VARCHAR(15),
+	efecto VARCHAR(80)
+);
+
+CREATE TABLE PuedeHabilidad(
+	id_pkmn INTEGER,
+	nombre_hab VARCHAR(15)
+);
+
+CREATE TABLE Habilidad(
+	nombre VARCHAR(15),
+	efecto VARCHAR(80)
+);
+
+CREATE TABLE PuedeEstadistica(
+	id_pkmn INTEGER,
+	nombre_est VARCHAR(10),
+	valorBase INTEGER
+);
+
+CREATE TABLE TieneEstadistica(
+	idc_pkmn INTEGER,
+	id_pkbase INTEGER,
+	id_equipo INTEGER,
+	nombre_usuario VARCHAR(40),
+	nombre_est VARCHAR(10),
+	ivs INTEGER,
+	evs INTEGER
+);
+
+CREATE TABLE Estadistica(
+	nombre varchar(10),
+	iv_min INTEGER,
+	iv_max INTEGER,
+	ev_min INTEGER,
+	ev_max INTEGER
+);
+
+CREATE TABLE Naturaleza (
+	nombre varchar(12),
+	nombre_m VARCHAR(10),
+	nombre_e VARCHAR(10)
+);
+
+CREATE TABLE Compone(
+	id_pkbase INTEGER,
+	nombre_tipo VARCHAR(10)
+);
+
+CREATE TABLE Tipo(
+	nombre varchar(10),
+	ef_agua FLOAT,
+	ef_bicho FLOAT,
+	ef_acero FLOAT,
+	ef_dragon FLOAT,
+	ef_elect FLOAT,
+	ef_fants FLOAT,
+	ef_fuego FLOAT,
+	ef_lucha FLOAT,
+	ef_hada FLOAT,
+	ef_psiquic FLOAT,
+	ef_planta FLOAT,
+	ef_normal FLOAT,
+	ef_hielo FLOAT,
+	ef_roca FLOAT,
+	ef_sinstr FLOAT,
+	ef_veneno FLOAT,
+	ef_tierra FLOAT,
+	ef_volador FLOAT
+);
+
+CREATE TABLE Movimiento(
+	nombre VARCHAR(20),
+	potencia INTEGER,
+	precision INTEGER,
+	pp INTEGER,
+	categoria VARCHAR(15),
+	efecto VARCHAR(60),
+	nombre_tipo VARCHAR(10)
+);
+
+CREATE TABLE PuedeAprender(
+	id_pkbase INTEGER,
+	nombre_mov VARCHAR(20)
+);
+
+CREATE TABLE Aprendido(
+	idc_pkmn INTEGER,
+	id_pkbase INTEGER,
+	id_equipo INTEGER,
+	nombre_usuario VARCHAR(40),
+	nombre_mov VARCHAR(20)
+);
+
+-- ===| CONSTRAINTS |=== --
+-- == PRIMARY KEYS ==
+ALTER TABLE Usuario ADD CONSTRAINT usr_nom_pk PRIMARY KEY (nombre);
+ALTER TABLE Equipo ADD CONSTRAINT equipo_pk PRIMARY KEY (id);
+ALTER TABLE Participa ADD CONSTRAINT part_pk PRIMARY KEY (id_equipo, nombre_usuario, id_combate);
+ALTER TABLE Combate ADD CONSTRAINT comb_pk PRIMARY KEY (id);
+ALTER TABLE Formato ADD CONSTRAINT fmat_pk PRIMARY KEY (nombre);
+ALTER TABLE PokemonBase ADD CONSTRAINT pbase_pk PRIMARY KEY (id);
+ALTER TABLE PokemonCreado ADD CONSTRAINT pkmn_pk PRIMARY KEY (idc);
+ALTER TABLE PuedeCargar ADD CONSTRAINT pc_pk PRIMARY KEY (id_pkmn, nombre_obj);
+ALTER TABLE Carga ADD CONSTRAINT crg_pk PRIMARY KEY (idc_pkmn, id_pkbase, id_eq, nombre_usuario);
+ALTER TABLE PuedeHabilidad ADD CONSTRAINT ph_pk PRIMARY KEY (id_pkmn, nombre_hab);
+ALTER TABLE PuedeEstadistica ADD CONSTRAINT pe_pk PRIMARY KEY (id_pkmn, nombre_est);
+ALTER TABLE TieneEstadistica ADD CONSTRAINT te_pk PRIMARY KEY (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_est);
+ALTER TABLE Estadistica ADD CONSTRAINT est_pk PRIMARY KEY (nombre);
+ALTER TABLE Naturaleza ADD CONSTRAINT nat_pk PRIMARY KEY (nombre);
+ALTER TABLE Compone ADD CONSTRAINT comp_pk PRIMARY KEY (id_pkbase, nombre_tipo );
+ALTER TABLE Tipo ADD CONSTRAINT tipo_pk PRIMARY KEY (nombre);
+ALTER TABLE Habilidad ADD CONSTRAINT hab_pk PRIMARY KEY (nombre);
+ALTER TABLE Objeto ADD CONSTRAINT obj_pk PRIMARY KEY (nombre);
+ALTER TABLE Movimiento ADD CONSTRAINT mov_pk PRIMARY KEY (nombre);
+ALTER TABLE PuedeAprender ADD CONSTRAINT pa_pk PRIMARY KEY (id_pkbase, nombre_mov);
+ALTER TABLE Aprendido ADD CONSTRAINT ap_pk PRIMARY KEY (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov);
+
+
+-- Equipo
+ALTER TABLE Equipo ADD CONSTRAINT eq_usrname_fk FOREIGN KEY (nombre_usuario) REFERENCES Usuario(nombre);
+ALTER TABLE Equipo ADD CONSTRAINT eq_format_fk FOREIGN KEY (nombre_formato) REFERENCES Formato(nombre);
+
+-- Participa
+ALTER TABLE Participa ADD CONSTRAINT part_id_eq_fk FOREIGN KEY (id_equipo) REFERENCES Equipo(id);
+ALTER TABLE Participa ADD CONSTRAINT part_nom_usr_fk FOREIGN KEY (nombre_usuario) REFERENCES Usuario(nombre);
+ALTER TABLE Participa ADD CONSTRAINT part_id_comb_fk FOREIGN KEY (id_combate) REFERENCES Combate(id);
+
+-- Combate
+ALTER TABLE Combate ADD CONSTRAINT comb_eq_id_fk FOREIGN KEY (id_equipo) REFERENCES Equipo(id);
+ALTER TABLE Combate ADD CONSTRAINT comb_usr_nom_fk FOREIGN KEY (nombre_usuario) REFERENCES Usuario(nombre);
+
+-- PokemonBase
+ALTER TABLE PokemonBase ADD CONSTRAINT pbase_nom_fmat_fk FOREIGN KEY (nombre_formato) REFERENCES Formato(nombre);
+
+-- PokemonCreado
+ALTER TABLE PokemonCreado ADD CONSTRAINT pkmn_pbase_id_fk FOREIGN KEY (id_pkmn) REFERENCES PokemonBase(id);
+ALTER TABLE PokemonCreado ADD CONSTRAINT pkmn_eq_id_fk FOREIGN KEY (id_eq) REFERENCES Equipo(id);
+ALTER TABLE PokemonCreado ADD CONSTRAINT pkmn_usr_nom_fk FOREIGN KEY (nombre_usuario) REFERENCES Usuario(nombre);
+ALTER TABLE PokemonCreado ADD CONSTRAINT pkmn_hab_nom_fk FOREIGN KEY (nombre_habilidad) REFERENCES Habilidad(nombre);
+ALTER TABLE PokemonCreado ADD CONSTRAINT pkmn_nom_nat_fk FOREIGN KEY (nombre_nat) REFERENCES Naturaleza(nombre);
+
+-- PuedeCargar
+ALTER TABLE PuedeCargar ADD CONSTRAINT pc_pbase_id_fk FOREIGN KEY (id_pkmn) REFERENCES PokemonBase(id);
+ALTER TABLE PuedeCargar ADD CONSTRAINT pc_obj_nom_fk FOREIGN KEY (nombre_obj) REFERENCES Objeto(nombre);
+
+-- Carga
+ALTER TABLE Carga ADD CONSTRAINT crg_idc_pkmn_fk FOREIGN KEY (idc_pkmn) REFERENCES PokemonCreado(idc);
+ALTER TABLE Carga ADD CONSTRAINT crg_pbase_id_fk FOREIGN KEY (id_pkbase) REFERENCES PokemonBase(id);
+ALTER TABLE Carga ADD CONSTRAINT crg_eq_id_fk FOREIGN KEY (id_eq) REFERENCES Equipo(id);
+ALTER TABLE Carga ADD CONSTRAINT crg_usr_nom_fk FOREIGN KEY (nombre_usuario) REFERENCES Usuario(nombre);
+ALTER TABLE Carga ADD CONSTRAINT crg_hab_nom_fk FOREIGN KEY (nombre_objeto) REFERENCES Objeto(nombre);
+
+-- PuedeHabilidad
+ALTER TABLE PuedeHabilidad ADD CONSTRAINT ph_id_pkmn_fk FOREIGN KEY (id_pkmn) REFERENCES PokemonBase(id);
+ALTER TABLE PuedeHabilidad ADD CONSTRAINT ph_hab_nom_fk FOREIGN KEY (nombre_hab) REFERENCES Habilidad(nombre);
+
+-- PuedeEstadistica
+ALTER TABLE PuedeEstadistica ADD CONSTRAINT pe_id_pkmn_fk FOREIGN KEY (id_pkmn) REFERENCES PokemonBase(id);
+ALTER TABLE PuedeEstadistica ADD CONSTRAINT pe_est_nom_fk FOREIGN KEY (nombre_est) REFERENCES Estadistica(nombre);
+
+-- TieneEstadistica
+ALTER TABLE TieneEstadistica ADD CONSTRAINT te_idc_pkmn_fk FOREIGN KEY (idc_pkmn) REFERENCES PokemonCreado(idc);
+ALTER TABLE TieneEstadistica ADD CONSTRAINT te_pbase_id_fk FOREIGN KEY (id_pkbase) REFERENCES PokemonBase(id);
+ALTER TABLE TieneEstadistica ADD CONSTRAINT te_eq_id_fk FOREIGN KEY (id_equipo) REFERENCES Equipo(id);
+ALTER TABLE TieneEstadistica ADD CONSTRAINT te_usr_nom_fk FOREIGN KEY (nombre_usuario) REFERENCES Usuario(nombre);
+ALTER TABLE TieneEstadistica ADD CONSTRAINT te_hab_nom_fk FOREIGN KEY (nombre_est) REFERENCES Estadistica(nombre);
+
+-- Naturaleza
+ALTER TABLE Naturaleza ADD CONSTRAINT nat_est_m_fk FOREIGN KEY (nombre_m) REFERENCES Estadistica(nombre);
+ALTER TABLE Naturaleza ADD CONSTRAINT nat_est_e_fk FOREIGN KEY (nombre_e) REFERENCES Estadistica(nombre);
+
+-- Compone
+ALTER TABLE Compone ADD CONSTRAINT comp_id_pkmn_fk FOREIGN KEY (id_pkbase) REFERENCES PokemonBase(id);
+ALTER TABLE Compone ADD CONSTRAINT comp_nom_tipo_fk FOREIGN KEY (nombre_tipo ) REFERENCES Tipo(nombre);
+
+-- Movimiento
+ALTER TABLE Movimiento ADD CONSTRAINT mov_tipo_nom_fk FOREIGN KEY (nombre_tipo) REFERENCES Tipo(nombre);
+
+-- PuedeAprender
+ALTER TABLE PuedeAprender ADD CONSTRAINT pa_id_pkmn_fk FOREIGN KEY (id_pkbase) REFERENCES PokemonBase(id);
+ALTER TABLE PuedeAprender ADD CONSTRAINT pa_nom_mov_fk FOREIGN KEY (nombre_mov) REFERENCES Movimiento(nombre);
+
+-- Aprendido
+ALTER TABLE Aprendido ADD CONSTRAINT ap_idc_pkmn_fk FOREIGN KEY (idc_pkmn) REFERENCES PokemonCreado(idc);
+ALTER TABLE Aprendido ADD CONSTRAINT ap_pbase_id_fk FOREIGN KEY (id_pkbase) REFERENCES PokemonBase(id);
+ALTER TABLE Aprendido ADD CONSTRAINT ap_eq_id_fk FOREIGN KEY (id_equipo) REFERENCES Equipo(id);
+ALTER TABLE Aprendido ADD CONSTRAINT ap_usr_nom_fk FOREIGN KEY (nombre_usuario) REFERENCES Usuario(nombre);
+ALTER TABLE Aprendido ADD CONSTRAINT ap_mov_nom_fk FOREIGN KEY (nombre_mov) REFERENCES Movimiento(nombre);
+
+-- Estadistica
+INSERT INTO Estadistica (nombre, iv_min, iv_max, ev_min, ev_max) VALUES ('Ataque', 0, 31, 0, 252);
+INSERT INTO Estadistica (nombre, iv_min, iv_max, ev_min, ev_max) VALUES ('Defensa', 0, 31, 0, 252);
+INSERT INTO Estadistica (nombre, iv_min, iv_max, ev_min, ev_max) VALUES ('HP', 0, 31, 0, 252);
+INSERT INTO Estadistica (nombre, iv_min, iv_max, ev_min, ev_max) VALUES ('Atk. Esp.', 0, 31, 0, 252);
+INSERT INTO Estadistica (nombre, iv_min, iv_max, ev_min, ev_max) VALUES ('Def. Esp.', 0, 31, 0, 252);
+INSERT INTO Estadistica (nombre, iv_min, iv_max, ev_min, ev_max) VALUES ('Velocidad', 0, 31, 0, 252);
+
+-- Usuario
+INSERT INTO Usuario (nombre) VALUES ('Martin');
+INSERT INTO Usuario (nombre) VALUES ('Kevin');
+INSERT INTO Usuario (nombre) VALUES ('Paolo');
+INSERT INTO Usuario (nombre) VALUES ('Gabriel');
+INSERT INTO Usuario (nombre) VALUES ('Marcelo');
+
+-- Formato
+INSERT INTO Formato (nombre, doubles) VALUES ('OU', FALSE);
+INSERT INTO Formato (nombre, doubles) VALUES ('UU', FALSE);
+INSERT INTO Formato (nombre, doubles) VALUES ('RU', FALSE);
+INSERT INTO Formato (nombre, doubles) VALUES ('NU', FALSE);
+INSERT INTO Formato (nombre, doubles) VALUES ('Ubers', FALSE);
+INSERT INTO Formato (nombre, doubles) VALUES ('VGC 2022', TRUE);
+
+-- Equipo
+INSERT INTO Equipo (id, nombre, nombre_usuario, nombre_formato) VALUES (1, 'EquipoGOD', 'Martin', 'OU');
+INSERT INTO Equipo (id, nombre, nombre_usuario, nombre_formato) VALUES (2, 'GAAAAAA', 'Kevin', 'OU');
+INSERT INTO Equipo (id, nombre, nombre_usuario, nombre_formato) VALUES (3, 'compiladoresletsgooo', 'Paolo', 'OU');
+INSERT INTO Equipo (id, nombre, nombre_usuario, nombre_formato) VALUES (4, 'carrosexual', 'Marcelo', 'OU');
+INSERT INTO Equipo (id, nombre, nombre_usuario, nombre_formato) VALUES (5, 'garrapata', 'Gabriel', 'OU');
+
+-- Naturalezas
+INSERT INTO Naturaleza (nombre) VALUES ('Fuerte');
+INSERT INTO Naturaleza (nombre, nombre_m, nombre_e) VALUES ('Osada', 'Defensa', 'Ataque');
+INSERT INTO Naturaleza (nombre, nombre_m, nombre_e) VALUES ('Miedosa', 'Velocidad', 'Ataque');
+INSERT INTO Naturaleza (nombre, nombre_m, nombre_e) VALUES ('Modesta', 'Atk. Esp.', 'Ataque');
+INSERT INTO Naturaleza (nombre, nombre_m, nombre_e) VALUES ('Serena', 'Def. Esp.', 'Ataque');
+
+INSERT INTO Naturaleza (nombre, nombre_m, nombre_e) VALUES ('Huraña', 'Ataque', 'Defensa');
+INSERT INTO Naturaleza (nombre) VALUES ('Docil');
+INSERT INTO Naturaleza (nombre, nombre_m, nombre_e) VALUES ('Activa', 'Velocidad', 'Defensa');
+INSERT INTO Naturaleza (nombre, nombre_m, nombre_e) VALUES ('Afable', 'Atk. Esp.', 'Defensa');
+INSERT INTO Naturaleza (nombre, nombre_m, nombre_e) VALUES ('Amable', 'Def. Esp.', 'Defensa');
+
+INSERT INTO Naturaleza (nombre, nombre_m, nombre_e) VALUES ('Audaz', 'Ataque', 'Velocidad');
+INSERT INTO Naturaleza (nombre, nombre_m, nombre_e) VALUES ('Placida', 'Defensa', 'Velocidad');
+INSERT INTO Naturaleza (nombre) VALUES ('Seria');
+INSERT INTO Naturaleza (nombre, nombre_m, nombre_e) VALUES ('Mansa', 'Atk. Esp.', 'Velocidad');
+INSERT INTO Naturaleza (nombre, nombre_m, nombre_e) VALUES ('Grosera', 'Def. Esp.', 'Velocidad');
+
+INSERT INTO Naturaleza (nombre, nombre_m, nombre_e) VALUES ('Firme', 'Ataque', 'Atk. Esp.');
+INSERT INTO Naturaleza (nombre, nombre_m, nombre_e) VALUES ('Agitada', 'Defensa', 'Atk. Esp.');
+INSERT INTO Naturaleza (nombre, nombre_m, nombre_e) VALUES ('Alegre', 'Velocidad', 'Atk. Esp.');
+INSERT INTO Naturaleza (nombre) VALUES ('Timida');
+INSERT INTO Naturaleza (nombre, nombre_m, nombre_e) VALUES ('Cauta', 'Def. Esp.', 'Atk. Esp.');
+
+INSERT INTO Naturaleza (nombre, nombre_m, nombre_e) VALUES ('Picara', 'Ataque', 'Def. Esp.');
+INSERT INTO Naturaleza (nombre, nombre_m, nombre_e) VALUES ('Floja', 'Defensa', 'Def. Esp.');
+INSERT INTO Naturaleza (nombre, nombre_m, nombre_e) VALUES ('Ingenua', 'Velocidad', 'Def. Esp.');
+INSERT INTO Naturaleza (nombre, nombre_m, nombre_e) VALUES ('Alocada', 'Atk. Esp.', 'Def. Esp.');
+INSERT INTO Naturaleza (nombre) VALUES ('Rara');
+
+-- Objeto
+INSERT INTO Objeto (nombre, efecto) VALUES ('Chaleco Asalto', 'Def. Esp. x1.5 solo puedes usar movimientos que hagan daño.');
+INSERT INTO Objeto (nombre, efecto) VALUES ('Cinta Elegida', 'Atk. x1.5 solo puedes usar el primer movimiento que hagas.');
+INSERT INTO Objeto (nombre, efecto) VALUES ('Pañuelo Elegido', 'Def. Esp. x1.5 solo puedes usar el primer movimiento que hagas.');
+INSERT INTO Objeto (nombre, efecto) VALUES ('Gafas Elegidas', 'Atk. Esp. x1.5 solo puedes usar el primer movimiento que hagas.');
+INSERT INTO Objeto (nombre, efecto) VALUES ('Banda Focus', 'Con HP full, sobrevives a un ataque 1HKO.');
+INSERT INTO Objeto (nombre, efecto) VALUES ('Restos', 'Al final del turno el portador se cura 1/16 de su vida maxima.');
+INSERT INTO Objeto (nombre, efecto) VALUES ('Vidasfera', 'Ataques hacen 1.3x de daño pero te disminuye la vida 1/10 al atacar.');
+INSERT INTO Objeto (nombre, efecto) VALUES ('Casco Dentado', 'Disminuye 1/6 de vida del rival al entrar en contacto.');
+
+-- Tipo
+INSERT INTO Tipo (nombre) VALUES('Bicho');
+INSERT INTO Tipo (nombre) VALUES('Dragon');
+INSERT INTO Tipo (nombre) VALUES('Electrico');
+INSERT INTO Tipo (nombre) VALUES('Hada');
+INSERT INTO Tipo (nombre) VALUES('Lucha');
+INSERT INTO Tipo (nombre) VALUES('Fuego');
+INSERT INTO Tipo (nombre) VALUES('Volador');
+INSERT INTO Tipo (nombre) VALUES('Fantasma');
+INSERT INTO Tipo (nombre) VALUES('Planta');
+INSERT INTO Tipo (nombre) VALUES('Tierra');
+INSERT INTO Tipo (nombre) VALUES('Hielo');
+INSERT INTO Tipo (nombre) VALUES('Normal');
+INSERT INTO Tipo (nombre) VALUES('Veneno');
+INSERT INTO Tipo (nombre) VALUES('Psiquico');
+INSERT INTO Tipo (nombre) VALUES('Roca');
+INSERT INTO Tipo (nombre) VALUES('Acero');
+INSERT INTO Tipo (nombre) VALUES('Agua');
+INSERT INTO Tipo (nombre) VALUES('Siniestro');
+
+-- Habilidad
+INSERT INTO Habilidad (nombre, efecto) VALUES ('Cuerpo Puro' , 'Evita que bajen las estadísticas a causa de un movimiento del oponente.');
+INSERT INTO Habilidad (nombre, efecto) VALUES ('Puño Ferreo' , 'Aumenta 20% la potencia de los movimientos basados en puños.');
+INSERT INTO Habilidad (nombre, efecto) VALUES ('Competitivo' , 'Aumenta el ataque en 2 cuando una stat disminuye.');
+INSERT INTO Habilidad (nombre, efecto) VALUES ('Foco Interno' , 'El pokemon no puede retroceder.');
+INSERT INTO Habilidad (nombre, efecto) VALUES ('Cura Natural' , 'El pokemon se cura de cualquier estado al volver a la pokeball.');
+INSERT INTO Habilidad (nombre, efecto) VALUES ('Chorro Arena' , 'Se desata una tormenta de arena al entrar en combate.');
+INSERT INTO Habilidad (nombre, efecto) VALUES ('Llovizna' , 'Se desata una lluvia al entrar en combate.');
+INSERT INTO Habilidad (nombre, efecto) VALUES ('Velo Arena' , 'Si hay una tormenta arena la evasion aumenta en 1.25x.');
+INSERT INTO Habilidad (nombre, efecto) VALUES ('Absorbe Fuego' , 'Inmune a ataques tipo fuego.');
+INSERT INTO Habilidad (nombre, efecto) VALUES ('Punta Acero' , 'Si un pokemon entra en contacto pierde 1/8 de su vida.');
+INSERT INTO Habilidad (nombre, efecto) VALUES ('Ultraimpulso' , 'La stat mas alta aumenta en 1 al debilitar a un pokemon.');
+INSERT INTO Habilidad(nombre, efecto) VALUES('Elec. Estat.', '30% de paralizar a un pokemon al entrar en contacto.');
+
+--Pokemon Base
+INSERT INTO PokemonBase (id, nombre, nombre_formato) VALUES (25, 'Pikachu', 'RU');
+INSERT INTO PokemonBase (id, nombre, nombre_formato) VALUES (445, 'Garchomp', 'OU');
+INSERT INTO PokemonBase (id, nombre, nombre_formato) VALUES (887, 'Dragapult', 'OU');
+INSERT INTO PokemonBase (id, nombre, nombre_formato) VALUES (809, 'Melmetal', 'OU');
+INSERT INTO PokemonBase (id, nombre, nombre_formato) VALUES (145, 'Zapdos', 'OU');
+INSERT INTO PokemonBase (id, nombre, nombre_formato) VALUES (625, 'Bisharp', 'OU');
+INSERT INTO PokemonBase (id, nombre, nombre_formato) VALUES (242, 'Blissey', 'OU');
+INSERT INTO PokemonBase (id, nombre, nombre_formato) VALUES (806, 'Blacephalon', 'OU');
+INSERT INTO PokemonBase (id, nombre, nombre_formato) VALUES (794, 'Buzzwhole', 'OU');
+INSERT INTO PokemonBase (id, nombre, nombre_formato) VALUES (823, 'Corviknight', 'OU');
+INSERT INTO PokemonBase (id, nombre, nombre_formato) VALUES (149, 'Dragonite', 'OU');
+INSERT INTO PokemonBase (id, nombre, nombre_formato) VALUES (598, 'Ferrothorn', 'OU');
+INSERT INTO PokemonBase (id, nombre, nombre_formato) VALUES (485, 'Heatran', 'OU');
+INSERT INTO PokemonBase (id, nombre, nombre_formato) VALUES (279, 'Pelipper', 'OU');
+INSERT INTO PokemonBase (id, nombre, nombre_formato) VALUES (812, 'Rillaboom', 'OU');
+INSERT INTO PokemonBase (id, nombre, nombre_formato) VALUES (248, 'Tyranitar', 'OU');
+
+-- Movimientos
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Ida y Vuelta', 'Bicho');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Meteoro Dragon', 'Dragon');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Bola Sombra', 'Fantasma');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Lanzallamas', 'Fuego');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Ferropuño Doble', 'Acero');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Terremoto', 'Tierra');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Puño Trueno', 'Electrico');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Proteccion', 'Normal');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Vendaval', 'Volador');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Voltiocambio', 'Electrico');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Respiro', 'Volador');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Onda Ignea', 'Fuego');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Drenadoras', 'Planta');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Giro Bola', 'Acero');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Plancha Corporal', 'Lucha');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Puas', 'Tierra');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Fitoimpulso', 'Planta');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Desarme', 'Siniestro');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Danza Espada', 'Normal');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Fuerza Bruta', 'Lucha');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Despejar', 'Volador');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Pajaro Osado', 'Volador');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Danza Dragon', 'Dragon');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Ala Bis', 'Volador');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Puño Hielo', 'Hielo');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('A Bocajarro', 'Lucha');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Chupavidas', 'Bicho');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Truco', 'Psiquico');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Sofoco', 'Fuego');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Escaldar', 'Agua');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Mov. Sismico', 'Lucha');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Amortiguador', 'Normal');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Trampa Rocas', 'Roca');
+INSERT INTO Movimiento (nombre, nombre_tipo) VALUES ('Toxico', 'Veneno');
+
+-- Pokemones Creados
+INSERT INTO PokemonCreado(idc, nivel, nickname, id_pkmn, id_eq, nombre_usuario, nombre_habilidad, nombre_nat) 
+VALUES(1, 50, 'Martoooon', 887, 1, 'Martin', 'Cuerpo Puro', 'Firme');
+
+INSERT INTO PokemonCreado(idc, nivel, nickname, id_pkmn, id_eq, nombre_usuario, nombre_habilidad, nombre_nat) 
+VALUES(2, 50, 'TalMeltal', 809, 1, 'Martin', 'Puño Ferreo', 'Firme');
+
+INSERT INTO PokemonCreado(idc, nivel, nickname, id_pkmn, id_eq, nombre_usuario, nombre_habilidad, nombre_nat) 
+VALUES(3, 50, 'Zap2', 145, 1, 'Martin', 'Elec. Estat.', 'Modesta');
+
+INSERT INTO PokemonCreado(idc, nivel, id_pkmn, id_eq, nombre_usuario, nombre_habilidad, nombre_nat) 
+VALUES(4, 50, 242, 2, 'Kevin', 'Cura Natural', 'Huraña');
+
+INSERT INTO PokemonCreado(idc, nivel, id_pkmn, id_eq, nombre_usuario, nombre_habilidad, nombre_nat) 
+VALUES(5, 50, 806, 2, 'Kevin', 'Ultraimpulso', 'Modesta');
+
+INSERT INTO PokemonCreado(idc, nivel, id_pkmn, id_eq, nombre_usuario, nombre_habilidad, nombre_nat) 
+VALUES(6, 50,145, 2, 'Kevin', 'Cuerpo Puro', 'Huraña');
+
+INSERT INTO PokemonCreado(idc, nivel, id_pkmn, id_eq, nombre_usuario, nombre_habilidad, nombre_nat) 
+VALUES(7, 50, 823, 3, 'Paolo', 'Punta Acero', 'Picara');
+
+INSERT INTO PokemonCreado(idc, nivel, id_pkmn, id_eq, nombre_usuario, nombre_habilidad, nombre_nat) 
+VALUES(8, 50, 794, 3, 'Paolo', 'Ultraimpulso', 'Firme');
+
+INSERT INTO PokemonCreado(idc, nivel, id_pkmn, id_eq, nombre_usuario, nombre_habilidad, nombre_nat) 
+VALUES(9, 50, 812, 3, 'Paolo', 'Foco Interno', 'Osada');
+
+INSERT INTO PokemonCreado(idc, nivel, id_pkmn, id_eq, nombre_usuario, nombre_habilidad, nombre_nat) 
+VALUES(10, 50, 149, 4, 'Marcelo', 'Foco Interno', 'Modesta');
+
+INSERT INTO PokemonCreado(idc, nivel, id_pkmn, id_eq, nombre_usuario, nombre_habilidad, nombre_nat) 
+VALUES(11, 50, 445, 4, 'Marcelo', 'Velo Arena', 'Firme');
+
+INSERT INTO PokemonCreado(idc, nivel, id_pkmn, id_eq, nombre_usuario, nombre_habilidad, nombre_nat) 
+VALUES(12, 50, 887, 4, 'Marcelo', 'Competitivo', 'Firme');
+
+-- Aprendido
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (1, 887, 1, 'Martin', 'Ida y Vuelta');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (1, 887, 1, 'Martin', 'Meteoro Dragon');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (1, 887, 1, 'Martin', 'Bola Sombra');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (1, 887, 1, 'Martin', 'Lanzallamas');
+
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (2, 809, 1, 'Martin','Ferropuño Doble');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (2, 809, 1, 'Martin','Terremoto');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (2, 809, 1, 'Martin','Puño Trueno');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (2, 809, 1, 'Martin','Proteccion');
+
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (3, 145, 1, 'Martin', 'Vendaval');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (3, 145, 1, 'Martin', 'Voltiocambio');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (3, 145, 1, 'Martin', 'Respiro');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (3, 145, 1, 'Martin', 'Onda Ignea');
+
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (4, 242, 2, 'Kevin', 'Mov. Sismico');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (4, 242, 2, 'Kevin', 'Amortiguador');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (4, 242, 2, 'Kevin', 'Trampa Rocas');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (4, 242, 2, 'Kevin', 'Toxico');
+
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (5, 806, 2, 'Kevin', 'Bola Sombra');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (5, 806, 2, 'Kevin', 'Lanzallamas');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (5, 806, 2, 'Kevin', 'Truco');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (5, 806, 2, 'Kevin', 'Sofoco');
+
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (6, 145, 2, 'Kevin', 'Vendaval');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (6, 145, 2, 'Kevin', 'Voltiocambio');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (6, 145, 2, 'Kevin', 'Respiro');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (6, 145, 2, 'Kevin', 'Onda Ignea');
+
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (7, 823, 3, 'Paolo', 'Respiro');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (7, 823, 3, 'Paolo', 'Despejar');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (7, 823, 3, 'Paolo', 'Ida y Vuelta');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (7, 823, 3, 'Paolo', 'Pajaro Osado');
+
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario,  nombre_mov) VALUES (8, 794, 3, 'Paolo', 'Puño Hielo');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario,  nombre_mov) VALUES (8, 794, 3, 'Paolo', 'A Bocajarro');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario,  nombre_mov) VALUES (8, 794, 3, 'Paolo', 'Chupavidas');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario,  nombre_mov) VALUES (8, 794, 3, 'Paolo', 'Terremoto');
+
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (9, 812, 3, 'Paolo', 'Fitoimpulso');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (9, 812, 3, 'Paolo', 'Desarme');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (9, 812, 3, 'Paolo', 'Danza Espada');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (9, 812, 3, 'Paolo', 'Fuerza Bruta');
+
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (10, 149, 4, 'Marcelo', 'Respiro');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (10, 149, 4, 'Marcelo', 'Danza Dragon');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (10, 149, 4, 'Marcelo', 'Ala Bis');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (10, 149, 4, 'Marcelo', 'Terremoto');
+
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (11, 445, 4, 'Marcelo', 'Terremoto');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (11, 445, 4, 'Marcelo', 'Danza Espada');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (11, 445, 4, 'Marcelo', 'Trampa Rocas');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (11, 445, 4, 'Marcelo', 'Proteccion');
+
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (12, 887, 4, 'Marcelo', 'Ida y Vuelta');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (12, 887, 4, 'Marcelo', 'Meteoro Dragon');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (12, 887, 4, 'Marcelo', 'Bola Sombra');
+INSERT INTO Aprendido (idc_pkmn, id_pkbase, id_equipo, nombre_usuario, nombre_mov) VALUES (12, 887, 4, 'Marcelo', 'Danza Dragon');
+
+-- Carga
+INSERT INTO Carga (idc_pkmn, id_pkbase, id_eq, nombre_usuario, nombre_objeto) VALUES (1, 887, 1, 'Martin', 'Gafas Elegidas');
+INSERT INTO Carga (idc_pkmn, id_pkbase, id_eq, nombre_usuario, nombre_objeto) VALUES (2, 809, 1, 'Martin','Restos');
+INSERT INTO Carga (idc_pkmn, id_pkbase, id_eq, nombre_usuario, nombre_objeto) VALUES (3, 145, 1, 'Martin', 'Vidasfera');
+INSERT INTO Carga (idc_pkmn, id_pkbase, id_eq, nombre_usuario, nombre_objeto) VALUES (4, 242, 2, 'Kevin', 'Restos');
+INSERT INTO Carga (idc_pkmn, id_pkbase, id_eq, nombre_usuario, nombre_objeto) VALUES (5, 806, 2, 'Kevin', 'Pañuelo Elegido');
+INSERT INTO Carga (idc_pkmn, id_pkbase, id_eq, nombre_usuario, nombre_objeto) VALUES (6, 145, 2, 'Kevin', 'Vidasfera');
+INSERT INTO Carga (idc_pkmn, id_pkbase, id_eq, nombre_usuario, nombre_objeto) VALUES (7, 823, 3, 'Paolo', 'Restos');
+INSERT INTO Carga (idc_pkmn, id_pkbase, id_eq, nombre_usuario,  nombre_objeto) VALUES (8, 794, 3, 'Paolo', 'Cinta Elegida');
+INSERT INTO Carga (idc_pkmn, id_pkbase, id_eq, nombre_usuario, nombre_objeto) VALUES (9, 812, 3, 'Paolo', 'Restos');
+INSERT INTO Carga (idc_pkmn, id_pkbase, id_eq, nombre_usuario, nombre_objeto) VALUES (10, 149, 4, 'Marcelo', 'Vidasfera');
+INSERT INTO Carga (idc_pkmn, id_pkbase, id_eq, nombre_usuario, nombre_objeto) VALUES (11, 445, 4, 'Marcelo', 'Restos');
+INSERT INTO Carga (idc_pkmn, id_pkbase, id_eq, nombre_usuario, nombre_objeto) VALUES (12, 887, 4, 'Marcelo', 'Gafas Elegidas');
+
+-- PuedeEstadistica
+INSERT INTO PuedeEstadistica (id_pkmn, nombre_est, valorBase) VALUES (887, 'HP', 88);
+INSERT INTO PuedeEstadistica (id_pkmn, nombre_est, valorBase) VALUES (887, 'Ataque', 120);
+INSERT INTO PuedeEstadistica (id_pkmn, nombre_est, valorBase) VALUES (887, 'Defensa', 75);
+INSERT INTO PuedeEstadistica (id_pkmn, nombre_est, valorBase) VALUES (887, 'Atk. Esp.', 100);
+INSERT INTO PuedeEstadistica (id_pkmn, nombre_est, valorBase) VALUES (887, 'Def. Esp.', 75);
+INSERT INTO PuedeEstadistica (id_pkmn, nombre_est, valorBase) VALUES (887, 'Velocidad', 142);
+
+INSERT INTO PuedeEstadistica (id_pkmn, nombre_est, valorBase) VALUES (809, 'HP', 135);
+INSERT INTO PuedeEstadistica (id_pkmn, nombre_est, valorBase) VALUES (809, 'Ataque', 143);
+INSERT INTO PuedeEstadistica (id_pkmn, nombre_est, valorBase) VALUES (809, 'Defensa', 143);
+INSERT INTO PuedeEstadistica (id_pkmn, nombre_est, valorBase) VALUES (809, 'Atk. Esp.', 80);
+INSERT INTO PuedeEstadistica (id_pkmn, nombre_est, valorBase) VALUES (809, 'Def. Esp.', 65);
+INSERT INTO PuedeEstadistica (id_pkmn, nombre_est, valorBase) VALUES (809, 'Velocidad', 34);
+
+INSERT INTO PuedeEstadistica (id_pkmn, nombre_est, valorBase) VALUES (145, 'HP', 90);
+INSERT INTO PuedeEstadistica (id_pkmn, nombre_est, valorBase) VALUES (145, 'Ataque', 90);
+INSERT INTO PuedeEstadistica (id_pkmn, nombre_est, valorBase) VALUES (145, 'Defensa', 85);
+INSERT INTO PuedeEstadistica (id_pkmn, nombre_est, valorBase) VALUES (145, 'Atk. Esp.', 125);
+INSERT INTO PuedeEstadistica (id_pkmn, nombre_est, valorBase) VALUES (145, 'Def. Esp.', 90);
+INSERT INTO PuedeEstadistica (id_pkmn, nombre_est, valorBase) VALUES (145, 'Velocidad', 100);
+
+CREATE VIEW UsoVGC12 AS
+	SELECT nombre, COUNT(*),
+		CAST(COUNT(*)*100./(SELECT COUNT(*) FROM PokemonBase as B INNER JOIN PokemonCreado P ON B.id = P.id_pkmn) AS DECIMAL(7,2))
+			AS frecuencia FROM(
+				SELECT nombre FROM (SELECT id FROM Equipo) as E
+				INNER JOIN (SELECT * FROM PokemonBase as B INNER JOIN PokemonCreado P ON B.id = P.id_pkmn) as P
+				ON E.id = P.id_eq
+				WHERE nombre_formato = 'OU') as A
+	GROUP BY nombre
+	ORDER BY count DESC LIMIT 20;
+
+SELECT * FROM UsoVGC12;
+	
+SELECT CAST(AVG(frecuencia) AS DECIMAL(7,2))
+FROM UsoVGC12 WHERE nombre IN
+	(SELECT * FROM (
+	SELECT nombre FROM (SELECT id FROM equipo WHERE nombre = 'carrosexual') as E
+	INNER JOIN (SELECT * FROM PokemonBase as B INNER JOIN PokemonCreado P ON B.id = P.id_pkmn) as P
+	ON E.id = P.id_eq) as B);
+
+SELECT nombre, nombre_mov, CAST(COUNT(nombre_mov)*100./
+								(SELECT COUNT(nombre) FROM (PokemonBase as B INNER JOIN PokemonCreado P ON B.id = P.id_pkmn) as PBC 
+								INNER JOIN Aprendido as A ON PBC.idc = A.idc_pkmn 
+								GROUP BY nombre ORDER BY count DESC LIMIT 1)
+							 AS DECIMAL(7,2)) AS frec_mov 
+	FROM
+	(SELECT nombre, nombre_habilidad, nombre_nat, nombre_objeto, nombre_mov
+	FROM (SELECT * FROM Aprendido as A INNER JOIN 
+		  (SELECT * FROM (PokemonBase as B INNER JOIN PokemonCreado P ON B.id = P.id_pkmn) 
+		  as P INNER JOIN Carga as C ON P.idc = C.idc_pkmn) as X ON A.idc_pkmn = X.idc) as Z
+		  WHERE nombre IN
+		  (SELECT nombre FROM
+	(SELECT nombre, COUNT(*),
+			CAST(COUNT(*)*100./(SELECT COUNT(*) FROM PokemonBase as B INNER JOIN PokemonCreado P ON B.id = P.id_pkmn) AS DECIMAL(7,2))
+				AS frecuencia FROM(
+					SELECT nombre FROM (SELECT id FROM Equipo) as E
+					INNER JOIN (SELECT * FROM PokemonBase as B INNER JOIN PokemonCreado P ON B.id = P.id_pkmn) as P
+					ON E.id = P.id_eq
+					WHERE nombre_formato = 'OU') as A
+		GROUP BY nombre
+		ORDER BY count DESC LIMIT 1) as C)) as CC
+		GROUP BY nombre, nombre_mov ORDER BY frec_mov DESC LIMIT 4;
